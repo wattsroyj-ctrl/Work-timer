@@ -2,140 +2,228 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#12355b">
-<link rel="manifest" href="manifest.json">
-<title>Work Timer</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#00274C">
+<title>UM Work Timer</title>
 <style>
-:root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#14213d;background:#f3f6fa}
-*{box-sizing:border-box}body{margin:0;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom);max-width:720px;margin-inline:auto}
-header{background:#12355b;color:white;border-radius:0 0 18px 18px;padding:20px 18px;margin:0 -14px 16px}
-h1{margin:0;font-size:28px}.sub{opacity:.8;font-size:14px;margin-top:3px}
-.card{background:white;border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 2px 10px #00000012}
-label{font-weight:600;font-size:14px;display:block;margin-bottom:7px}
-textarea{width:100%;min-height:72px;border:1px solid #ccd5df;border-radius:10px;padding:12px;font-size:16px;resize:vertical}
-button{border:0;border-radius:12px;padding:13px 16px;font-size:16px;font-weight:700;cursor:pointer}
-.start{background:#198754;color:white;width:100%;font-size:20px}.stop{background:#c62828;color:white;width:100%;font-size:20px}
-button.secondary{background:#e8eef5;color:#12355b}.row{display:flex;gap:10px}.row>*{flex:1}
-.status{font-weight:700;font-size:18px}.clock{font-variant-numeric:tabular-nums;font-size:30px;font-weight:800;margin:6px 0}
-.total{font-size:34px;font-weight:800}.muted{color:#657384;font-size:13px}
-.entry{border-top:1px solid #e2e7ed;padding:13px 0}.entry:first-child{border-top:0}
-.entrytime{font-weight:700}.duration{font-weight:800;color:#12355b}.comment{margin-top:4px}
-.empty{text-align:center;color:#718096;padding:20px}
-.danger{color:#a61b1b}
+*{box-sizing:border-box}
+body{margin:0;background:#eef2f6;color:#172235;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:0 14px}
+header{background:#00274C;color:white;margin:0 -14px 15px;padding:18px;text-align:center;border-radius:0 0 20px 20px}
+.logo{width:150px;max-width:65%;margin-bottom:8px}
+h1{margin:0;font-size:27px}
+.sub{opacity:.8;font-size:14px}
+.card{background:white;border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 2px 10px #0002}
+label{display:block;font-weight:700;font-size:14px;margin-bottom:7px}
+textarea{width:100%;height:75px;border:1px solid #ccd5df;border-radius:10px;padding:12px;font-size:16px}
+button{border:0;border-radius:12px;padding:13px;font-size:16px;font-weight:700}
+.start{background:#198754;color:white;width:100%;font-size:20px}
+.stop{background:#b42318;color:white;width:100%;font-size:20px}
+.secondary{background:#e8eef5;color:#00274C}
+.danger{background:#fbe9e7;color:#a21b12}
+.row{display:flex;gap:9px}.row>*{flex:1}
+.status{font-size:18px;font-weight:700}
+.clock{font-size:31px;font-weight:800;font-variant-numeric:tabular-nums;margin:5px 0 10px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.stat{background:#f3f6f9;border-radius:11px;padding:10px;text-align:center}
+.stat small{display:block;color:#687789;font-weight:700}
+.stat b{font-size:19px;color:#00274C}
+select{width:100%;padding:11px;border:1px solid #ccd5df;border-radius:10px;font-size:16px}
+.entry{border-top:1px solid #ddd;padding:13px 0;position:relative}
+.entry:first-child{border-top:0}
+.time{font-weight:700;padding-right:65px}
+.duration{color:#00274C;font-weight:800}
+.comment{margin-top:4px}
+.delete{position:absolute;right:0;top:9px;padding:6px 9px;font-size:12px}
+.empty{text-align:center;color:#718096;padding:18px}
+@media(max-width:430px){.stats{grid-template-columns:1fr}}
 </style>
 </head>
+
 <body>
-<header><h1>Work Timer</h1><div class="sub">Start • Stop • Record • Total</div></header>
+
+<header>
+<img class="logo" src="https://rna.umich.edu/wp-content/uploads/2024/07/u-m_logo-hex.png">
+<h1>Work Timer</h1>
+<div class="sub">University of Michigan • Work Activity Log</div>
+</header>
 
 <div class="card">
-  <label for="comment">What are you working on?</label>
-  <textarea id="comment" placeholder="Enter an activity or comment..."></textarea>
-  <div style="height:12px"></div>
-  <div id="status" class="status">Ready to start</div>
-  <div id="live" class="clock">00:00:00</div>
-  <button id="action" class="start" onclick="toggleTimer()">START</button>
+<label>What are you working on?</label>
+<textarea id="comment" placeholder="Enter activity or comment..."></textarea>
+<br><br>
+<div id="status" class="status">Ready to start</div>
+<div id="live" class="clock">00:00:00</div>
+<button id="action" class="start" onclick="toggle()">START</button>
 </div>
 
 <div class="card">
-  <div class="muted">TODAY'S CUMULATIVE TIME</div>
-  <div id="total" class="total">00:00:00</div>
+<div class="stats">
+<div class="stat"><small>TODAY</small><b id="today">00:00:00</b></div>
+<div class="stat"><small>THIS WEEK</small><b id="week">00:00:00</b></div>
+<div class="stat"><small>ALL TIME</small><b id="all">00:00:00</b></div>
+</div>
 </div>
 
 <div class="card">
-  <div class="row">
-    <button class="secondary" onclick="exportCSV()">Export CSV</button>
-    <button class="secondary" onclick="clearToday()">Clear Today</button>
-  </div>
+<div class="row">
+<button class="secondary" onclick="exportData()">Export All</button>
+<button class="secondary" onclick="exportToday()">Export Today</button>
+</div>
 </div>
 
 <div class="card">
-  <h2 style="margin-top:0">Today's Records</h2>
-  <div id="records"></div>
+<h2>Records</h2>
+<select id="filter" onchange="render()">
+<option value="today">Today</option>
+<option value="week">This Week</option>
+<option value="all">All Records</option>
+</select>
+<div id="records"></div>
+</div>
+
+<div class="card">
+<div class="row">
+<button class="secondary" onclick="clearToday()">Clear Today</button>
+<button class="danger" onclick="clearAll()">Delete All</button>
+</div>
 </div>
 
 <script>
-const KEY='workTimerRecordsV1';
-const ACTIVE='workTimerActiveV1';
-let timer=null;
+const KEY="UMWorkTimerRecords";
+const ACTIVE="UMWorkTimerActive";
+let interval;
 
-function records(){return JSON.parse(localStorage.getItem(KEY)||'[]')}
-function save(r){localStorage.setItem(KEY,JSON.stringify(r))}
-function active(){return JSON.parse(localStorage.getItem(ACTIVE)||'null')}
+function get(){return JSON.parse(localStorage.getItem(KEY)||"[]")}
+function save(x){localStorage.setItem(KEY,JSON.stringify(x))}
+function active(){return JSON.parse(localStorage.getItem(ACTIVE)||"null")}
+function day(t){return new Date(t).toLocaleDateString("en-CA")}
+function today(){return day(Date.now())}
+
 function fmt(ms){
-  ms=Math.max(0,ms); let s=Math.floor(ms/1000), h=Math.floor(s/3600); s%=3600;
-  let m=Math.floor(s/60); s%=60;
-  return [h,m,s].map((x,i)=>String(x).padStart(2,'0')).join(':');
+let s=Math.floor(ms/1000),h=Math.floor(s/3600);s%=3600;
+let m=Math.floor(s/60);s%=60;
+return [h,m,s].map(x=>String(x).padStart(2,"0")).join(":")
 }
-function dateKey(ts){return new Date(ts).toLocaleDateString('en-CA')}
-function today(){return dateKey(Date.now())}
 
-function toggleTimer(){
- const a=active();
- if(!a){
-   const comment=document.getElementById('comment').value.trim();
-   const start=Date.now();
-   localStorage.setItem(ACTIVE,JSON.stringify({start,comment}));
-   render(); tick();
- }else{
-   const stop=Date.now();
-   const r=records();
-   r.unshift({start:a.start,stop,comment:a.comment,duration:stop-a.start});
-   save(r);localStorage.removeItem(ACTIVE);document.getElementById('comment').value='';
-   render();
- }
+function weekStart(){
+let d=new Date();d.setHours(0,0,0,0);
+let n=d.getDay();d.setDate(d.getDate()-(n==0?6:n-1));
+return d
 }
-function tick(){
- if(timer)clearInterval(timer);
- if(active()) timer=setInterval(render,500);
+
+function inWeek(t){return new Date(t)>=weekStart()}
+
+function total(type){
+let r=get();
+if(type=="today")r=r.filter(x=>day(x.start)==today());
+if(type=="week")r=r.filter(x=>inWeek(x.start));
+let n=r.reduce((a,x)=>a+x.duration,0),a=active();
+if(a&&(type=="all"||(type=="today"&&day(a.start)==today())||(type=="week"&&inWeek(a.start))))
+n+=Date.now()-a.start;
+return n
 }
+
+function toggle(){
+let a=active();
+if(!a){
+localStorage.setItem(ACTIVE,JSON.stringify({
+start:Date.now(),
+comment:document.getElementById("comment").value.trim()
+}));
+}else{
+let stop=Date.now(),r=get();
+r.unshift({
+id:Date.now(),
+start:a.start,
+stop:stop,
+duration:stop-a.start,
+comment:a.comment
+});
+save(r);
+localStorage.removeItem(ACTIVE);
+document.getElementById("comment").value="";
+}
+render()
+}
+
+function deleteRecord(id){
+if(confirm("Delete this record?")){
+save(get().filter(x=>x.id!=id));render()
+}
+}
+
 function render(){
- const a=active(), now=Date.now();
- const action=document.getElementById('action');
- if(a){
-   document.getElementById('status').textContent='Timer running';
-   document.getElementById('live').textContent=fmt(now-a.start);
-   action.textContent='STOP';action.className='stop';
- }else{
-   document.getElementById('status').textContent='Ready to start';
-   document.getElementById('live').textContent='00:00:00';
-   action.textContent='START';action.className='start';
- }
- const rs=records().filter(x=>dateKey(x.start)===today());
- let total=rs.reduce((n,x)=>n+x.duration,0);
- if(a && dateKey(a.start)===today()) total+=now-a.start;
- document.getElementById('total').textContent=fmt(total);
- const box=document.getElementById('records');
- if(!rs.length){box.innerHTML='<div class="empty">No completed records yet today.</div>';return}
- box.innerHTML=rs.map(x=>`
-   <div class="entry">
-    <div class="entrytime">${new Date(x.start).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}
-      – ${new Date(x.stop).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}
-      <span class="duration">(${fmt(x.duration)})</span></div>
-    <div class="comment">${escapeHtml(x.comment||'No comment')}</div>
-   </div>`).join('');
+let a=active();
+if(a){
+status.textContent="Timer running";
+live.textContent=fmt(Date.now()-a.start);
+action.textContent="STOP";
+action.className="stop";
+}else{
+status.textContent="Ready to start";
+live.textContent="00:00:00";
+action.textContent="START";
+action.className="start";
 }
-function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function exportCSV(){
- const rs=records().filter(x=>dateKey(x.start)===today());
- if(!rs.length){alert('There are no completed records to export today.');return}
- let csv='Date,Start,Stop,Duration,Comment\\n';
- rs.slice().reverse().forEach(x=>{
-   const d=new Date(x.start).toLocaleDateString();
-   const st=new Date(x.start).toLocaleTimeString();
-   const sp=new Date(x.stop).toLocaleTimeString();
-   csv += [d,st,sp,fmt(x.duration),`"${(x.comment||'').replaceAll('"','""')}"`].join(',')+'\\n';
- });
- const blob=new Blob([csv],{type:'text/csv'});
- const url=URL.createObjectURL(blob),a=document.createElement('a');
- a.href=url;a.download='work-timer-'+today()+'.csv';a.click();URL.revokeObjectURL(url);
+
+todayEl.textContent=fmt(total("today"));
+weekEl.textContent=fmt(total("week"));
+allEl.textContent=fmt(total("all"));
+
+let f=filter.value,r=get();
+if(f=="today")r=r.filter(x=>day(x.start)==today());
+if(f=="week")r=r.filter(x=>inWeek(x.start));
+
+records.innerHTML=r.length?r.map(x=>`
+<div class="entry">
+<button class="delete danger" onclick="deleteRecord(${x.id})">Delete</button>
+<div class="time">
+${new Date(x.start).toLocaleDateString()} —
+${new Date(x.start).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}
+to ${new Date(x.stop).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}
+<span class="duration">(${fmt(x.duration)})</span>
+</div>
+<div class="comment">${esc(x.comment||"No comment")}</div>
+</div>`).join(""):"<div class='empty'>No records in this view.</div>"
 }
+
+function esc(s){
+return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))
+}
+
+function csv(r,file){
+if(!r.length){alert("No records to export.");return}
+let out="Date,Start,Stop,Duration,Comment\n";
+r.slice().reverse().forEach(x=>{
+out+=`"${new Date(x.start).toLocaleDateString()}","${new Date(x.start).toLocaleTimeString()}","${new Date(x.stop).toLocaleTimeString()}","${fmt(x.duration)}","${(x.comment||"").replaceAll('"','""')}"\n`
+});
+let u=URL.createObjectURL(new Blob([out],{type:"text/csv"}));
+let a=document.createElement("a");a.href=u;a.download=file;a.click();URL.revokeObjectURL(u)
+}
+
+function exportData(){csv(get(),"work-timer-all.csv")}
+function exportToday(){csv(get().filter(x=>day(x.start)==today()),"work-timer-today.csv")}
+
 function clearToday(){
- if(confirm("Clear all completed records for today? This cannot be undone.")){
-   save(records().filter(x=>dateKey(x.start)!==today()));render();
- }
+if(confirm("Clear today's completed records?")){save(get().filter(x=>day(x.start)!=today()));render()}
 }
-render();tick();
+
+function clearAll(){
+if(confirm("Delete ALL completed records?")){save([]);render()}
+}
+
+const status=document.getElementById("status");
+const live=document.getElementById("live");
+const action=document.getElementById("action");
+const todayEl=document.getElementById("today");
+const weekEl=document.getElementById("week");
+const allEl=document.getElementById("all");
+const filter=document.getElementById("filter");
+const records=document.getElementById("records");
+
+render();
+interval=setInterval(render,500);
 </script>
+
 </body>
-</html>
+</html>in
